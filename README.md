@@ -38,4 +38,4 @@ Starting instance 'myinstance'.................
 
 ## License
 
-Copyright (c) 2019 Fabien Loudet
+Copyright (c) 2020 Fabien Loudet
