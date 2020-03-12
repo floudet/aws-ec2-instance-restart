@@ -21,12 +21,14 @@ parser = argparse.ArgumentParser(description='Restarts an AWS EC2 instance and g
 parser.add_argument('--config', '-c', type=str, help='AWS credentials file', required=True)
 parser.add_argument('--instance', '-i', type=str, help='Name of the instance to restart', required=True)
 parser.add_argument('--region', '-r', type=str, help='AWS Region', required=True)
+parser.add_argument('--timeout', '-t', type=int, default=60, help='Timeout in seconds for stop and start operations')
 
 args = parser.parse_args()
 
 aws_shared_credentials_file = args.config
 region_name = args.region
 target_instance = args.instance
+timeout = args.timeout
 
 if os.path.isfile(aws_shared_credentials_file):
   os.environ['AWS_SHARED_CREDENTIALS_FILE'] = aws_shared_credentials_file
@@ -62,11 +64,11 @@ else:
   print("Stopping '" + target_instance + "'.", end='', flush=True)
   ec2client.stopInstance(instance_id)
 
-timeout = 30
-while instance_state != 'stopped' and timeout >= 0:
+timeout_stop = timeout
+while instance_state != 'stopped' and timeout_stop >= 0:
   instance_state = ec2client.getInstanceState(instance_id)
   print('.', end='', flush=True)
-  timeout -= 1
+  timeout_stop -= 1
   time.sleep(1)
 print('\n')
 
@@ -78,11 +80,11 @@ else:
   print("Starting instance '" + target_instance + "'.", end='', flush=True)
   ec2client.startInstance(instance_id)
 
-timeout = 30
-while instance_state != 'running' and timeout >= 0:
+timeout_start = timeout
+while instance_state != 'running' and timeout_start >= 0:
   instance_state = ec2client.getInstanceState(instance_id)
   print('.', end='', flush=True)
-  timeout -= 1
+  timeout_start -= 1
   time.sleep(1)
 print('\n')
 
