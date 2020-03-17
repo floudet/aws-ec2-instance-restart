@@ -8,7 +8,6 @@
 # Author: Fabien Loudet
 
 import argparse
-import json
 import os
 import sys
 import time
@@ -17,11 +16,28 @@ from colorama import Style
 from lib.awsctl import ec2ctl
 
 # Parse arguments from command line
-parser = argparse.ArgumentParser(description='Restarts an AWS EC2 instance and grab its new Public IP')
-parser.add_argument('--config', '-c', type=str, help='AWS credentials file', required=True)
-parser.add_argument('--instance', '-i', type=str, help='Name of the instance to restart', required=True)
-parser.add_argument('--region', '-r', type=str, help='AWS Region', required=True)
-parser.add_argument('--timeout', '-t', type=int, default=60, help='Timeout in seconds for stop and start operations')
+parser = argparse.ArgumentParser(
+    description='Restarts an AWS EC2 instance and grab its new Public IP')
+parser.add_argument('--config',
+                    '-c',
+                    type=str,
+                    help='AWS credentials file',
+                    required=True)
+parser.add_argument('--instance',
+                    '-i',
+                    type=str,
+                    help='Name of the instance to restart',
+                    required=True)
+parser.add_argument('--region',
+                    '-r',
+                    type=str,
+                    help='AWS Region',
+                    required=True)
+parser.add_argument('--timeout',
+                    '-t',
+                    type=int,
+                    default=60,
+                    help='Timeout in seconds for stop and start operations')
 
 args = parser.parse_args()
 
@@ -42,7 +58,8 @@ ec2client = ec2ctl(region_name)
 instance_id = ec2client.getInstanceIdFromName(target_instance)
 
 if instance_id is None:
-  print('Unable to find an instance with the Name ' + target_instance + ' on region ' + region_name)
+  print('Unable to find an instance with the Name '
+        + target_instance + ' on region ' + region_name)
   sys.exit(1)
 
 print(" * InstanceId : " + instance_id)
@@ -59,7 +76,8 @@ instance_state = ec2client.getInstanceState(instance_id)
 print(" * Instance State : " + instance_state)
 
 if instance_state != 'running':
-  print("Instance '" + target_instance + "' is not in a running state, aborting.")
+  print("Instance '" + target_instance
+        + "' is not in a running state, aborting.")
 else:
   print("Stopping '" + target_instance + "'.", end='', flush=True)
   ec2client.stopInstance(instance_id)
@@ -73,7 +91,8 @@ while instance_state != 'stopped' and timeout_stop >= 0:
 print('\n')
 
 if instance_state != 'stopped':
-  print(Fore.RED + "Instance '" + target_instance + "' is still not in a stopped state, aborting." + Style.RESET_ALL)
+  print(Fore.RED + "Instance '" + target_instance
+        + "' is still not in a stopped state, aborting." + Style.RESET_ALL)
   sys.exit(1)
 else:
   print("'" + target_instance + "' has been successfully stopped")
@@ -89,7 +108,8 @@ while instance_state != 'running' and timeout_start >= 0:
 print('\n')
 
 if instance_state != 'running':
-  print(Fore.RED + "Instance '" + target_instance + "' is still not in a running state, please check." + Style.RESET_ALL)
+  print(Fore.RED + "Instance '" + target_instance
+        + "' is still not in a running state, please check." + Style.RESET_ALL)
   sys.exit(1)
 else:
   print("'" + target_instance + "' has been successfully started")
@@ -102,4 +122,3 @@ else:
   instance_public_ip = Fore.GREEN + instance_public_ip + Style.RESET_ALL
 
 print(" * InstancePublicIpAddress : " + instance_public_ip)
-
